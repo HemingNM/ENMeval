@@ -106,7 +106,7 @@ tuning <- function (occ, env, bg.coords, occ.grp, bg.grp, method, algorithm, arg
       predictive.maps <- stack()
     }
     
-    stopCluster(c1)
+    # stopCluster(c1)
   } else {
     out <- list()
     if (progbar == TRUE & !is.function(updateProgress)) {
@@ -221,5 +221,6 @@ tuning <- function (occ, env, bg.coords, occ.grp, bg.grp, method, algorithm, arg
                            models = full.mods, partition.method = method,
                            occ.pts = occ, occ.grp = group.data[[1]],
                            bg.pts = bg.coords, bg.grp = group.data[[2]])
+  if (parallel == TRUE) {stopCluster(c1)}
   return(results)
 }
