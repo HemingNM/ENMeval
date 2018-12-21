@@ -95,17 +95,6 @@ tuning <- function (occ, env, bg.coords, occ.grp, bg.grp, method, algorithm, arg
                                            userArgs, rasterPreds, clamp)
                      }
     }
-    
-    # gather all full models into list
-    full.mods <- lapply(out, function(x) x[[1]])
-    # gather all statistics into a data frame
-    statsTbl <- as.data.frame(t(sapply(out, function(x) x[[2]])))
-    if (rasterPreds) {
-      predictive.maps <- stack(sapply(out, function(x) x[[3]]))
-    } else {
-      predictive.maps <- stack()
-    }
-    
     # stopCluster(c1)
   } else {
     out <- list()
@@ -131,29 +120,18 @@ tuning <- function (occ, env, bg.coords, occ.grp, bg.grp, method, algorithm, arg
                                         userArgs, rasterPreds, clamp)
       }
     }
-    
-    # gather all full models into list
-    full.mods <- lapply(out, function(x) x[[1]])
-    # gather all statistics into a data frame
-    statsTbl <- as.data.frame(t(sapply(out, function(x) x[[2]])))
-    if (rasterPreds) {
-      predictive.maps <- stack(sapply(out, function(x) x[[3]]))
-    } else {
-      predictive.maps <- stack()
-    } 
-    
     if (progbar==TRUE) close(pb)
   }
 
-  # # gather all full models into list
-  # full.mods <- lapply(out, function(x) x[[1]])
-  # # gather all statistics into a data frame
-  # statsTbl <- as.data.frame(t(sapply(out, function(x) x[[2]])))
-  # if (rasterPreds) {
-  #   predictive.maps <- stack(sapply(out, function(x) x[[3]]))
-  # } else {
-  #   predictive.maps <- stack()
-  # }
+  # gather all full models into list
+  full.mods <- lapply(out, function(x) x[[1]])
+  # gather all statistics into a data frame
+  statsTbl <- as.data.frame(t(sapply(out, function(x) x[[2]])))
+  if (rasterPreds) {
+    predictive.maps <- stack(sapply(out, function(x) x[[3]]))
+  } else {
+    predictive.maps <- stack()
+  }
 
   AUC.DIFF <- statsTbl[,1:nk]
   AUC.TEST <- statsTbl[,(nk+1):(2*nk)]
@@ -215,8 +193,12 @@ tuning <- function (occ, env, bg.coords, occ.grp, bg.grp, method, algorithm, arg
 
   if (rasterPreds==TRUE) {
     names(predictive.maps) <- settings
+    if(parallel) {
+      message("rasterPreds will not be available when running in parallel")
+      predictive.maps <- stack()
+      }# because predictive maps won't be available 
+    # when running in parallel, it is better just to remove them from results
   }
-
   results <- ENMevaluation(algorithm = alg, results = res, predictions = predictive.maps,
                            models = full.mods, partition.method = method,
                            occ.pts = occ, occ.grp = group.data[[1]],
