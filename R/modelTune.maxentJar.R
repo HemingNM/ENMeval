@@ -4,8 +4,8 @@
 
 modelTune.maxentJar <- function(pres, bg, env, nk, group.data, args.i, userArgs, 
                                 rasterPreds, clamp, categoricals,
-                                threshold = threshold, # pRoc
-                                rand.percent = rand.percent, iterations = iterations) {
+                                threshold = 5, # pRoc
+                                rand.percent = 50, iterations = 100) {
   
   # set up data: x is coordinates of occs and bg, 
   # p is vector of 0's and 1's designating occs and bg
@@ -31,6 +31,7 @@ modelTune.maxentJar <- function(pres, bg, env, nk, group.data, args.i, userArgs,
   ORmin <- double()
   
   proc_res <- list()
+  iterations <- round(iterations/nk)
   
   # cross-validation on partitions
   for (k in 1:nk) {

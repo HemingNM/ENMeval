@@ -4,6 +4,8 @@ importFrom("raster", "raster", "cellStats", "extract", "nlayers", "aggregate", "
 importFrom("graphics", "abline", "arrows", "axis", "box", "par","plot")
 importFrom("stats", "var", "na.omit")
 importFrom("utils", "setTxtProgressBar", "txtProgressBar", "packageVersion")
+importFrom("kuenm", "kuenm_proc")#, "trap_roc", "pROC", "trapozoid_roc")
+# importFrom("ntbox", "nc")
 exportPattern("^[[:alpha:]]+")
 exportClasses(
     "ENMevaluation" 

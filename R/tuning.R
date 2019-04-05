@@ -8,8 +8,8 @@ tuning <- function (occ, env, bg.coords, occ.grp, bg.grp, method, algorithm, arg
                     args.lab, categoricals, aggregation.factor, kfolds, bin.output,
                     clamp, alg, rasterPreds, parallel, numCores, progbar, updateProgress,
                     userArgs,
-                    threshold = threshold, # pRoc
-                    rand.percent = rand.percent, iterations = iterations) {
+                    threshold = 5, # pRoc
+                    rand.percent = 50, iterations = 100) {
 
   # extract predictor variable values at coordinates for occs and bg
   pres <- as.data.frame(extract(env, occ))

@@ -10,11 +10,11 @@ License: GPL
 Encoding: UTF-8
 Depends: methods, R (>= 3.4), dismo
 Imports: doParallel, foreach, utils, graphics, stats, grDevices,
-        raster, maxnet
+        raster, maxnet, kuenm
 Suggests: rJava (>= 0.5-0), parallel, knitr, rmarkdown, spocc,
         maptools, rgeos, sp
 VignetteBuilder: knitr
-RoxygenNote: 6.0.1
+RoxygenNote: 6.1.1
 NeedsCompilation: no
 Packaged: 2018-08-14 19:10:12 UTC; au529793
 Repository: CRAN
