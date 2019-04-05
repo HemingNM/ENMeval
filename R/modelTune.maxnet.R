@@ -4,7 +4,7 @@
 
 modelTune.maxnet <- function(pres, bg, env, nk, group.data, args.i,  
                              rasterPreds, clamp,
-                             threshold = 5, # pRoc
+                             occ, threshold = 5, # pRoc
                              rand.percent = 50, iterations = 100) {
   
   # set up data: x is coordinates of occs and bg, 

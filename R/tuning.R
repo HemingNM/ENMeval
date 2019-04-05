@@ -88,14 +88,16 @@ tuning <- function (occ, env, bg.coords, occ.grp, bg.grp, method, algorithm, arg
       out <- foreach(i = seq_len(length(args)),
                      .packages = c("dismo", "raster", "ENMeval", "maxnet")) %dopar% {
                        modelTune.maxnet(pres, bg, env, nk, group.data, args[[i]],
-                                        rasterPreds, clamp)
+                                        rasterPreds, clamp,
+                                        occ = occ, threshold = threshold, # pRoc
+                                        rand.percent = rand.percent, iterations = iterations)
                      }
     } else if (algorithm == 'maxent.jar') {
       out <- foreach(i = seq_len(length(args)),
                      .packages = c("dismo", "raster", "ENMeval", "rJava")) %dopar% {
                        modelTune.maxentJar(pres, bg, env, nk, group.data, args[[i]],
                                            userArgs, rasterPreds, clamp,
-                                           threshold = threshold, # pRoc
+                                           occ = occ, threshold = threshold, # pRoc
                                            rand.percent = rand.percent, iterations = iterations)
                      }
     }
@@ -118,11 +120,13 @@ tuning <- function (occ, env, bg.coords, occ.grp, bg.grp, method, algorithm, arg
       }
       if (algorithm == 'maxnet') {
         out[[i]] <- modelTune.maxnet(pres, bg, env, nk, group.data, args[[i]],
-                                     rasterPreds, clamp)
+                                     rasterPreds, clamp,
+                                     occ = occ, threshold = threshold, # pRoc
+                                     rand.percent = rand.percent, iterations = iterations)
       } else if (algorithm == 'maxent.jar') {
         out[[i]] <- modelTune.maxentJar(occ, pres, bg, env, nk, group.data, args[[i]],
                                         userArgs, rasterPreds, clamp,
-                                        threshold = threshold, # pRoc
+                                        occ = occ, threshold = threshold, # pRoc
                                         rand.percent = rand.percent, iterations = iterations)
       }
     }
@@ -198,7 +202,7 @@ tuning <- function (occ, env, bg.coords, occ.grp, bg.grp, method, algorithm, arg
                     avg.diff.AUC = Mean.AUC.DIFF, var.diff.AUC = Var.AUC.DIFF,
                     
                     avg.test.pROC.ratio = Mean.pROC.ratio, var.test.pROC.ratio = Var.pROC.ratio,
-                    pROC.p = Mean.pROC.p,
+                    avg.pROC.p = Mean.pROC.p,
                     
                     avg.test.orMTP = Mean.ORmin, var.test.orMTP = Var.ORmin,
                     avg.test.or10pct = Mean.OR10, var.test.or10pct = Var.OR10, aicc)
