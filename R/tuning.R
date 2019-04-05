@@ -7,7 +7,9 @@
 tuning <- function (occ, env, bg.coords, occ.grp, bg.grp, method, algorithm, args,
                     args.lab, categoricals, aggregation.factor, kfolds, bin.output,
                     clamp, alg, rasterPreds, parallel, numCores, progbar, updateProgress,
-                    userArgs) {
+                    userArgs,
+                    threshold = threshold, # pRoc
+                    rand.percent = rand.percent, iterations = iterations) {
 
   # extract predictor variable values at coordinates for occs and bg
   pres <- as.data.frame(extract(env, occ))
@@ -92,7 +94,9 @@ tuning <- function (occ, env, bg.coords, occ.grp, bg.grp, method, algorithm, arg
       out <- foreach(i = seq_len(length(args)),
                      .packages = c("dismo", "raster", "ENMeval", "rJava")) %dopar% {
                        modelTune.maxentJar(pres, bg, env, nk, group.data, args[[i]],
-                                           userArgs, rasterPreds, clamp)
+                                           userArgs, rasterPreds, clamp,
+                                           threshold = threshold, # pRoc
+                                           rand.percent = rand.percent, iterations = iterations)
                      }
     }
     # stopCluster(c1)
@@ -117,7 +121,9 @@ tuning <- function (occ, env, bg.coords, occ.grp, bg.grp, method, algorithm, arg
                                      rasterPreds, clamp)
       } else if (algorithm == 'maxent.jar') {
         out[[i]] <- modelTune.maxentJar(pres, bg, env, nk, group.data, args[[i]],
-                                        userArgs, rasterPreds, clamp)
+                                        userArgs, rasterPreds, clamp,
+                                        threshold = threshold, # pRoc
+                                        rand.percent = rand.percent, iterations = iterations)
       }
     }
     if (progbar==TRUE) close(pb)
@@ -137,6 +143,7 @@ tuning <- function (occ, env, bg.coords, occ.grp, bg.grp, method, algorithm, arg
   AUC.TEST <- statsTbl[,(nk+1):(2*nk)]
   OR10 <- statsTbl[,((2*nk)+1):(3*nk)]
   ORmin <- statsTbl[,((3*nk)+1):(4*nk)]
+  pROC <- statsTbl[,((4*nk)+1):(4*nk)+2]
   # rename column fields
   names(AUC.DIFF) <- paste("diff.AUC_bin", 1:nk, sep = ".")
   Mean.AUC.DIFF <- rowMeans(AUC.DIFF)
@@ -150,7 +157,8 @@ tuning <- function (occ, env, bg.coords, occ.grp, bg.grp, method, algorithm, arg
   names(ORmin) <- paste("test.orMTP_bin", 1:nk, sep = ".")
   Mean.ORmin <- rowMeans(ORmin)
   Var.ORmin <- apply(ORmin, 1, var)
-
+  # names(pROC)
+  Mean.pROC <- rowMeans(pROC)
   # get training AUCs for each model
   full.AUC <- double()
 
@@ -185,6 +193,7 @@ tuning <- function (occ, env, bg.coords, occ.grp, bg.grp, method, algorithm, arg
   res <- data.frame(settings, features, rm, train.AUC = full.AUC,
                     avg.test.AUC = Mean.AUC, var.test.AUC = Var.AUC,
                     avg.diff.AUC = Mean.AUC.DIFF, var.diff.AUC = Var.AUC.DIFF,
+                    Mean.pROC, 
                     avg.test.orMTP = Mean.ORmin, var.test.orMTP = Var.ORmin,
                     avg.test.or10pct = Mean.OR10, var.test.or10pct = Var.OR10, aicc)
   if (bin.output == TRUE) {

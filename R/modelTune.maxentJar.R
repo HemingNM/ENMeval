@@ -3,7 +3,9 @@
 #################################################
 
 modelTune.maxentJar <- function(pres, bg, env, nk, group.data, args.i, userArgs, 
-                                rasterPreds, clamp, categoricals) {
+                                rasterPreds, clamp, categoricals,
+                                threshold = threshold, # pRoc
+                                rand.percent = rand.percent, iterations = iterations) {
   
   # set up data: x is coordinates of occs and bg, 
   # p is vector of 0's and 1's designating occs and bg
@@ -28,6 +30,8 @@ modelTune.maxentJar <- function(pres, bg, env, nk, group.data, args.i, userArgs,
   OR10 <- double()
   ORmin <- double()
   
+  proc_res <- list()
+  
   # cross-validation on partitions
   for (k in 1:nk) {
     # set up training and testing data groups
@@ -48,6 +52,15 @@ modelTune.maxentJar <- function(pres, bg, env, nk, group.data, args.i, userArgs,
     p.train <- predict(mod, train.val, args = pred.args)
     p.test <- predict(mod, test.val, args = pred.args)  
     
+    {
+      proc <- try(kuenm::kuenm_proc(occ.test = test.val, model = p.train, threshold = threshold, # pRoc
+                             rand.percent = rand.percent, iterations = iterations,
+                             parallel = F),
+                  silent = TRUE)
+      
+      proc_res[[k]] <- proc[[1]]
+    }
+    
     # figure out 90% of total no. of training records
     if (nrow(train.val) < 10) {
       n90 <- floor(nrow(train.val) * 0.9)
@@ -59,7 +72,10 @@ modelTune.maxentJar <- function(pres, bg, env, nk, group.data, args.i, userArgs,
     train.thr.min <- min(p.train)
     ORmin[k] <- mean(p.test < train.thr.min)
   }
-  stats <- c(AUC.DIFF, AUC.TEST, OR10, ORmin)
+  ###From pROC analyses
+  proc_res1 <- do.call(rbind, proc_res) #joining tables of the pROC results
+  
+  stats <- c(AUC.DIFF, AUC.TEST, OR10, ORmin, proc_res1)
   out.i <- list(full.mod, stats, predictive.map)
   return(out.i)
 }
