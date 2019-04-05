@@ -2,9 +2,9 @@
 #########	MODEL TUNE for maxent.jar #############
 #################################################
 
-modelTune.maxentJar <- function(occ, pres, bg, env, nk, group.data, args.i, userArgs, 
-                                rasterPreds, clamp, categoricals,
-                                threshold = 5, # pRoc
+modelTune.maxentJar <- function(pres, bg, env, nk, group.data, args.i, userArgs, 
+                                rasterPreds, clamp, categoricals, 
+                                occ, threshold = 5, # pRoc
                                 rand.percent = 50, iterations = 100) {
   
   # set up data: x is coordinates of occs and bg, 

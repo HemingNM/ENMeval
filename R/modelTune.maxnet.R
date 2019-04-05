@@ -14,7 +14,7 @@ modelTune.maxnet <- function(pres, bg, env, nk, group.data, args.i,
   
   # build the full model from all the data
   full.mod <- maxnet::maxnet(p, x, f=maxnet::maxnet.formula(p=p, data=x, classes=args.i[1]), 
-                             regmult = as.numeric(args.i[2]))
+                             regmult = as.numeric(args.i[2]), occ)
   
   # if rasters selected, predict for the full model
   if (rasterPreds == TRUE) {
