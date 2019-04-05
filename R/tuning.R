@@ -124,7 +124,7 @@ tuning <- function (occ, env, bg.coords, occ.grp, bg.grp, method, algorithm, arg
                                      occ = occ, threshold = threshold, # pRoc
                                      rand.percent = rand.percent, iterations = iterations)
       } else if (algorithm == 'maxent.jar') {
-        out[[i]] <- modelTune.maxentJar(occ, pres, bg, env, nk, group.data, args[[i]],
+        out[[i]] <- modelTune.maxentJar(pres, bg, env, nk, group.data, args[[i]],
                                         userArgs, rasterPreds, clamp,
                                         occ = occ, threshold = threshold, # pRoc
                                         rand.percent = rand.percent, iterations = iterations)
