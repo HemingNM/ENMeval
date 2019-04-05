@@ -120,7 +120,7 @@ tuning <- function (occ, env, bg.coords, occ.grp, bg.grp, method, algorithm, arg
         out[[i]] <- modelTune.maxnet(pres, bg, env, nk, group.data, args[[i]],
                                      rasterPreds, clamp)
       } else if (algorithm == 'maxent.jar') {
-        out[[i]] <- modelTune.maxentJar(pres, bg, env, nk, group.data, args[[i]],
+        out[[i]] <- modelTune.maxentJar(occ, pres, bg, env, nk, group.data, args[[i]],
                                         userArgs, rasterPreds, clamp,
                                         threshold = threshold, # pRoc
                                         rand.percent = rand.percent, iterations = iterations)
@@ -143,7 +143,8 @@ tuning <- function (occ, env, bg.coords, occ.grp, bg.grp, method, algorithm, arg
   AUC.TEST <- statsTbl[,(nk+1):(2*nk)]
   OR10 <- statsTbl[,((2*nk)+1):(3*nk)]
   ORmin <- statsTbl[,((3*nk)+1):(4*nk)]
-  pROC <- statsTbl[,((4*nk)+1):(4*nk)+2]
+  pROC.ratio <- statsTbl[,((4*nk)+1):(5*nk)]
+  pROC.p <- statsTbl[,((5*nk)+1):(6*nk)]
   # rename column fields
   names(AUC.DIFF) <- paste("diff.AUC_bin", 1:nk, sep = ".")
   Mean.AUC.DIFF <- rowMeans(AUC.DIFF)
@@ -158,7 +159,9 @@ tuning <- function (occ, env, bg.coords, occ.grp, bg.grp, method, algorithm, arg
   Mean.ORmin <- rowMeans(ORmin)
   Var.ORmin <- apply(ORmin, 1, var)
   # names(pROC)
-  Mean.pROC <- rowMeans(pROC)
+  Mean.pROC.ratio <- rowMeans(pROC.ratio)
+  Var.pROC.ratio <- apply(pROC.ratio, 1, var)
+  Mean.pROC.p <- rowMeans(pROC.p)
   # get training AUCs for each model
   full.AUC <- double()
 
@@ -193,7 +196,10 @@ tuning <- function (occ, env, bg.coords, occ.grp, bg.grp, method, algorithm, arg
   res <- data.frame(settings, features, rm, train.AUC = full.AUC,
                     avg.test.AUC = Mean.AUC, var.test.AUC = Var.AUC,
                     avg.diff.AUC = Mean.AUC.DIFF, var.diff.AUC = Var.AUC.DIFF,
-                    Mean.pROC, 
+                    
+                    avg.test.pROC.ratio = Mean.pROC.ratio, var.test.pROC.ratio = Var.pROC.ratio,
+                    pROC.p = Mean.pROC.p,
+                    
                     avg.test.orMTP = Mean.ORmin, var.test.orMTP = Var.ORmin,
                     avg.test.or10pct = Mean.OR10, var.test.or10pct = Var.OR10, aicc)
   if (bin.output == TRUE) {

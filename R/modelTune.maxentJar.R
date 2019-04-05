@@ -2,7 +2,7 @@
 #########	MODEL TUNE for maxent.jar #############
 #################################################
 
-modelTune.maxentJar <- function(pres, bg, env, nk, group.data, args.i, userArgs, 
+modelTune.maxentJar <- function(occ, pres, bg, env, nk, group.data, args.i, userArgs, 
                                 rasterPreds, clamp, categoricals,
                                 threshold = 5, # pRoc
                                 rand.percent = 50, iterations = 100) {
@@ -39,6 +39,7 @@ modelTune.maxentJar <- function(pres, bg, env, nk, group.data, args.i, userArgs,
     train.val <- pres[group.data$occ.grp != k,, drop = FALSE]
     test.val <- pres[group.data$occ.grp == k,, drop = FALSE]
     bg.val <- bg[group.data$bg.grp != k,, drop = FALSE]
+    occ.test <- occ[group.data$occ.grp == k,, drop = FALSE]
     # redefine x and p for partition groups
     x <- rbind(train.val, bg.val)
     p <- c(rep(1, nrow(train.val)), rep(0, nrow(bg.val)))
@@ -53,8 +54,11 @@ modelTune.maxentJar <- function(pres, bg, env, nk, group.data, args.i, userArgs,
     p.train <- predict(mod, train.val, args = pred.args)
     p.test <- predict(mod, test.val, args = pred.args)  
     
+    # pROC
     {
-      proc <- try(kuenm::kuenm_proc(occ.test = test.val, model = p.train, threshold = threshold, # pRoc
+      # predict values for pRoc
+      roc.map <- predict(mod, env, args = pred.args)  
+      proc <- try(kuenm::kuenm_proc(occ.test = occ.test, model = roc.map, threshold = threshold, # pRoc
                              rand.percent = rand.percent, iterations = iterations,
                              parallel = F),
                   silent = TRUE)
@@ -74,9 +78,9 @@ modelTune.maxentJar <- function(pres, bg, env, nk, group.data, args.i, userArgs,
     ORmin[k] <- mean(p.test < train.thr.min)
   }
   ###From pROC analyses
-  proc_res1 <- do.call(rbind, proc_res) #joining tables of the pROC results
+  pROC <- do.call(rbind, proc_res) #joining tables of the pROC results
   
-  stats <- c(AUC.DIFF, AUC.TEST, OR10, ORmin, proc_res1)
+  stats <- c(AUC.DIFF, AUC.TEST, OR10, ORmin, pROC)
   out.i <- list(full.mod, stats, predictive.map)
   return(out.i)
 }
