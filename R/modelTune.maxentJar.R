@@ -5,7 +5,7 @@
 modelTune.maxentJar <- function(pres, bg, env, nk, group.data, args.i, userArgs, 
                                 rasterPreds, clamp, categoricals, 
                                 occ, threshold = 5, # pRoc
-                                rand.percent = 50, iterations = 100) {
+                                rand.percent = 50, iterations = 500) {
   
   # set up data: x is coordinates of occs and bg, 
   # p is vector of 0's and 1's designating occs and bg

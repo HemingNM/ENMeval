@@ -5,7 +5,7 @@
 modelTune.maxnet <- function(pres, bg, env, nk, group.data, args.i,  
                              rasterPreds, clamp,
                              occ, threshold = 5, # pRoc
-                             rand.percent = 50, iterations = 100) {
+                             rand.percent = 50, iterations = 500) {
   
   # set up data: x is coordinates of occs and bg, 
   # p is vector of 0's and 1's designating occs and bg
@@ -78,7 +78,7 @@ modelTune.maxnet <- function(pres, bg, env, nk, group.data, args.i,
   }
   ###From pROC analyses
   pROC <- do.call(rbind, proc_res) #joining tables of the pROC results
-  
+  pROC <- pROC[!apply(pROC, 1, anyNA),] # removing groups with NAs
   stats <- c(AUC.DIFF, AUC.TEST, OR10, ORmin, pROC)
   out.i <- list(full.mod, stats, predictive.map)
   return(out.i)
