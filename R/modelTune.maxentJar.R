@@ -79,7 +79,7 @@ modelTune.maxentJar <- function(pres, bg, env, nk, group.data, args.i, userArgs,
   }
   ###From pROC analyses
   pROC <- do.call(rbind, proc_res) # joining tables of the pROC results
-  pROC <- pROC[!apply(pROC, 1, anyNA),] # removing groups with NAs
+  # pROC <- pROC[!apply(pROC, 1, anyNA),] # removing groups with NAs
   stats <- c(AUC.DIFF, AUC.TEST, OR10, ORmin, pROC)
   out.i <- list(full.mod, stats, predictive.map)
   return(out.i)
