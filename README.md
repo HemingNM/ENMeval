@@ -5,7 +5,7 @@ R package for automated runs and evaluations of ecological niche models.
 
 ### Important
 This is a modified version of the [`ENMeval`](https://cran.r-project.org/package=ENMeval) package. 
-This version also computes pROC [Owens et al. 2013](https://doi.org/10.1016/j.ecolmodel.2013.04.011) in the evaluation metrics using a kuenm_proc function from [`kuenm`](https://github.com/marlonecobos/kuenm) [Cobos et al. 2019](https://doi.org/10.7717/peerj.6281).
+This version also computes pROC [Owens et al. 2013](https://doi.org/10.1016/j.ecolmodel.2013.04.011) in the evaluation metrics using a `kuenm_proc` function from [`kuenm`](https://github.com/marlonecobos/kuenm) [Cobos et al. 2019](https://doi.org/10.7717/peerj.6281).
 When using this version of ENMeval, please cite: [`ENMeval`](https://cran.r-project.org/package=ENMeval),
 [`kuenm`](https://github.com/marlonecobos/kuenm), and
 [`ENMwizard`](https://github.com/HemingNM/ENMwizard).
