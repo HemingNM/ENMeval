@@ -11,10 +11,12 @@ When using this version of ENMeval, please cite: [`ENMeval`](https://cran.r-proj
 [`ENMwizard`](https://github.com/HemingNM/ENMwizard).
 
 ### Installation
+This version can be installed by using:
+```r
 install.packages("devtools")
 library("devtools")
 install_github("HemingNM/ENMeval",  ref="NMH")
-
+```
 
 ### Package description
 [`ENMeval`](https://cran.r-project.org/package=ENMeval) is an R package that performs automated runs and evaluations of ecological niche models, and currently implements Maxent using the either (now by default) the 'maxnet' algoritm developed by [Phillips *et al.* (2017)](https://onlinelibrary.wiley.com/doi/full/10.1111/ecog.03049) using the ['maxnet' R package](https://cran.r-project.org/package=maxnet) or [the original java program (http://biodiversityinformatics.amnh.org/open_source/maxent/). `ENMeval` was made for those who want to "tune" their models to maximize predictive ability and avoid overfitting, or in other words, optimize model complexity to balance goodness-of-fit and predictive ability. The primary function, `ENMevaluate`, does all the heavy lifting and returns several items including a table of evaluation statistics and, for each setting combination, a model object and a raster layer showing the model prediction across the study extent. There are also options for calculating niche overlap between predictions, running in parallel to speed up computation, and more. For a more detailed description of the package, check out the open-access publication:
