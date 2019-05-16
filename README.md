@@ -15,7 +15,8 @@ This version can be installed by using:
 ```r
 install.packages("devtools")
 library("devtools")
-install_github("HemingNM/ENMeval",  ref="NMH")
+install_github("marlonecobos/kuenm")
+install_github("HemingNM/ENMeval", ref="NMH")
 ```
 
 ### Package description

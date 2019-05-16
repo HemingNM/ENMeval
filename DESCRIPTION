@@ -10,7 +10,8 @@ License: GPL
 Encoding: UTF-8
 Depends: methods, R (>= 3.4), dismo
 Imports: doParallel, foreach, utils, graphics, stats, grDevices,
-        raster, maxnet, kuenm
+        raster, maxnet
+Remotes: github::marlonecobos/kuenm
 Suggests: rJava (>= 0.5-0), parallel, knitr, rmarkdown, spocc,
         maptools, rgeos, sp
 VignetteBuilder: knitr
