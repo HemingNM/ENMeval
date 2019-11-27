@@ -215,6 +215,7 @@ tuning <- function (occ, env, bg.coords, occ.grp, bg.grp, method, algorithm, arg
     if(parallel) {
       message("rasterPreds will not be available when running in parallel")
       predictive.maps <- stack()
+      raster::removeTmpFiles(h=0)
       }# because predictive maps won't be available 
     # when running in parallel, it is better just to remove them from results
   }
