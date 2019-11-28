@@ -8,8 +8,8 @@ tuning <- function (occ, env, bg.coords, occ.grp, bg.grp, method, algorithm, arg
                     args.lab, categoricals, aggregation.factor, kfolds, bin.output,
                     clamp, alg, rasterPreds, parallel, numCores, progbar, updateProgress,
                     userArgs,
-                    threshold = 5, # pRoc
-                    rand.percent = 50, iterations = 100) {
+                    threshold = 5, rand.percent = 50, iterations = 100 # pRoc
+                    ) {
 
   # extract predictor variable values at coordinates for occs and bg
   pres <- as.data.frame(extract(env, occ))
@@ -88,17 +88,17 @@ tuning <- function (occ, env, bg.coords, occ.grp, bg.grp, method, algorithm, arg
       out <- foreach(i = seq_len(length(args)),
                      .packages = c("dismo", "raster", "ENMeval", "maxnet")) %dopar% {
                        modelTune.maxnet(pres, bg, env, nk, group.data, args[[i]],
-                                        rasterPreds, clamp,
+                                        rasterPreds=T, clamp, categoricals, 
                                         occ = occ, threshold = threshold, # pRoc
-                                        rand.percent = rand.percent, iterations = iterations)
+                                        rand.percent = rand.percent, iterations = iterations) # pRoc
                      }
     } else if (algorithm == 'maxent.jar') {
       out <- foreach(i = seq_len(length(args)),
                      .packages = c("dismo", "raster", "ENMeval", "rJava")) %dopar% {
                        modelTune.maxentJar(pres, bg, env, nk, group.data, args[[i]],
-                                           userArgs, rasterPreds, clamp,
+                                           userArgs, rasterPreds=T, clamp, categoricals, 
                                            occ = occ, threshold = threshold, # pRoc
-                                           rand.percent = rand.percent, iterations = iterations)
+                                           rand.percent = rand.percent, iterations = iterations) # pRoc
                      }
     }
     # stopCluster(c1)
@@ -120,14 +120,14 @@ tuning <- function (occ, env, bg.coords, occ.grp, bg.grp, method, algorithm, arg
       }
       if (algorithm == 'maxnet') {
         out[[i]] <- modelTune.maxnet(pres, bg, env, nk, group.data, args[[i]],
-                                     rasterPreds, clamp,
+                                     rasterPreds=T, clamp, categoricals, 
                                      occ = occ, threshold = threshold, # pRoc
-                                     rand.percent = rand.percent, iterations = iterations)
+                                     rand.percent = rand.percent, iterations = iterations) # pRoc
       } else if (algorithm == 'maxent.jar') {
         out[[i]] <- modelTune.maxentJar(pres, bg, env, nk, group.data, args[[i]],
-                                        userArgs, rasterPreds, clamp,
+                                        userArgs, rasterPreds=T, clamp, categoricals, 
                                         occ = occ, threshold = threshold, # pRoc
-                                        rand.percent = rand.percent, iterations = iterations)
+                                        rand.percent = rand.percent, iterations = iterations) # pRoc
       }
     }
     if (progbar==TRUE) close(pb)
@@ -137,11 +137,12 @@ tuning <- function (occ, env, bg.coords, occ.grp, bg.grp, method, algorithm, arg
   full.mods <- lapply(out, function(x) x[[1]])
   # gather all statistics into a data frame
   statsTbl <- as.data.frame(t(sapply(out, function(x) x[[2]])))
-  if (rasterPreds) {
-    predictive.maps <- stack(sapply(out, function(x) x[[3]]))
-  } else {
-    predictive.maps <- stack()
-  }
+  aicc <- as.data.frame(t(sapply(out, function(x) x[[3]])))
+  # if (rasterPreds) {
+  #   predictive.maps <- stack(sapply(out, function(x) x[[3]]))
+  # } else {
+  #   predictive.maps <- stack()
+  # }
 
   AUC.DIFF <- statsTbl[,1:nk]
   AUC.TEST <- statsTbl[,(nk+1):(2*nk)]
@@ -187,11 +188,11 @@ tuning <- function (occ, env, bg.coords, occ.grp, bg.grp, method, algorithm, arg
     }
   }
 
-#  if (rasterPreds==TRUE) { # this should now work even if rasterPreds==F
-    aicc <- calc.aicc(nparam, occ, predictive.maps)
-#  } else {
-#    aicc <- rep(NaN, length(full.AUC))
-#  }
+  #  if (rasterPreds==TRUE) { # this should now work even if rasterPreds==F
+  #     aicc <- calc.aicc(nparam, occ, predictive.maps)
+  #  } else {
+  #    aicc <- rep(NaN, length(full.AUC))
+  #  }
 
   features <- args.lab[[1]]
   rm <- args.lab[[2]]
@@ -210,15 +211,17 @@ tuning <- function (occ, env, bg.coords, occ.grp, bg.grp, method, algorithm, arg
     res <- as.data.frame(cbind(res, AUC.TEST, AUC.DIFF, OR10, ORmin))
   }
 
-  if (rasterPreds==TRUE) {
-    names(predictive.maps) <- settings
-    if(parallel) {
-      message("rasterPreds will not be available when running in parallel")
+  # if (rasterPreds==TRUE) {
+  #   names(predictive.maps) <- settings
+  #   if(parallel) {
+  #     message("predictions are not available when running in parallel")
       predictive.maps <- stack()
-      raster::removeTmpFiles(h=0)
-      }# because predictive maps won't be available 
+  #     raster::removeTmpFiles(h=0)
+  #     stopCluster(c1)
+  #   }# because predictive maps won't be available 
     # when running in parallel, it is better just to remove them from results
-  }
+  # }
+
   results <- ENMevaluation(algorithm = alg, results = res, predictions = predictive.maps,
                            models = full.mods, partition.method = method,
                            occ.pts = occ, occ.grp = group.data[[1]],

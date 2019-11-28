@@ -4,8 +4,8 @@ ENMevaluate <- function (occ, env, bg.coords = NULL, occ.grp = NULL, bg.grp = NU
                          overlap = FALSE, aggregation.factor = c(2, 2), kfolds = NA, bin.output = FALSE,
                          clamp = TRUE, rasterPreds = TRUE, parallel = FALSE, numCores = NULL, 
                          progbar = TRUE, updateProgress = FALSE,
-                         threshold = 5, # pRoc
-                         rand.percent = 50, iterations = 100, ...) {
+                         threshold = 5, rand.percent = 50, iterations = 100, # pRoc
+                         ...) {
 
   ptm <- proc.time()
   if (is.null(method)) {

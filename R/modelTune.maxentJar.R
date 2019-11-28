@@ -4,8 +4,9 @@
 
 modelTune.maxentJar <- function(pres, bg, env, nk, group.data, args.i, userArgs, 
                                 rasterPreds, clamp, categoricals, 
-                                occ, threshold = 5, # pRoc
-                                rand.percent = 50, iterations = 500) {
+                                occ
+                                , threshold = 5, rand.percent = 50, iterations = 100 # pRoc
+                                ) {
   
   # set up data: x is coordinates of occs and bg, 
   # p is vector of 0's and 1's designating occs and bg
@@ -18,11 +19,14 @@ modelTune.maxentJar <- function(pres, bg, env, nk, group.data, args.i, userArgs,
   pred.args <- c("outputformat=raw", ifelse(clamp==TRUE, "doclamp=true", "doclamp=false"))
   
   # if rasters selected, predict for the full model
-  if (rasterPreds == TRUE) {
-    predictive.map <- predict(full.mod, env, args = pred.args)  
-  } else {
-    predictive.map <- stack()
-  }
+  # if (rasterPreds == TRUE) {
+    predictive.map <- predict(full.mod, env, args = pred.args) 
+    # AIC
+    nparam <- get.params(full.mod)
+    aicc <- calc.aicc(nparam, occ, predictive.map)
+  # } else {
+  #   predictive.map <- stack()
+  # }
   
   # set up empty vectors for stats
   AUC.TEST <- double()
@@ -81,7 +85,8 @@ modelTune.maxentJar <- function(pres, bg, env, nk, group.data, args.i, userArgs,
   pROC <- do.call(rbind, proc_res) # joining tables of the pROC results
   # pROC <- pROC[!apply(pROC, 1, anyNA),] # removing groups with NAs
   stats <- c(AUC.DIFF, AUC.TEST, OR10, ORmin, pROC)
-  out.i <- list(full.mod, stats, predictive.map)
+  out.i <- list(full.mod, stats, aicc) # , predictive.map
+  raster::removeTmpFiles(h=0)
   return(out.i)
 }
 
