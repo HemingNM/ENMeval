@@ -137,7 +137,14 @@ tuning <- function (occ, env, bg.coords, occ.grp, bg.grp, method, algorithm, arg
   full.mods <- lapply(out, function(x) x[[1]])
   # gather all statistics into a data frame
   statsTbl <- as.data.frame(t(sapply(out, function(x) x[[2]])))
-  aicc <- as.data.frame(t(sapply(out, function(x) x[[3]])))
+  # gather AICc
+  # aiccTbl <- data.frame(t(sapply(out, function(x) x[[3]][,c(1,4)])))
+  AICc <- sapply(out, function(x) x[[3]][,1])
+  # AICc <- unlist(aiccTbl$AICc)
+  delta.AICc <- (AICc - min(AICc, na.rm = TRUE))
+  w.AIC <- (exp(-0.5 * delta.AICc))/(sum(exp(-0.5 * delta.AICc), na.rm = TRUE))
+  aicc <- data.frame(AICc, delta.AICc, w.AIC, parameters = sapply(out, function(x) x[[3]][,4]))
+  
   # if (rasterPreds) {
   #   predictive.maps <- stack(sapply(out, function(x) x[[3]]))
   # } else {
@@ -179,14 +186,14 @@ tuning <- function (occ, env, bg.coords, occ.grp, bg.grp, method, algorithm, arg
   }
 
   # get total number of parameters
-  nparam <- numeric()
-  for (i in 1:length(full.mods)) {
-    if (algorithm == 'maxnet') {
-      nparam[i] <- length(full.mods[[i]]$betas)
-    } else if (algorithm == 'maxent.jar') {
-      nparam[i] <- get.params(full.mods[[i]])
-    }
-  }
+  # nparam <- numeric()
+  # for (i in 1:length(full.mods)) {
+  #   if (algorithm == 'maxnet') {
+  #     nparam[i] <- length(full.mods[[i]]$betas)
+  #   } else if (algorithm == 'maxent.jar') {
+  #     nparam[i] <- get.params(full.mods[[i]])
+  #   }
+  # }
 
   #  if (rasterPreds==TRUE) { # this should now work even if rasterPreds==F
   #     aicc <- calc.aicc(nparam, occ, predictive.maps)

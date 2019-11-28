@@ -21,7 +21,7 @@ modelTune.maxnet <- function(pres, bg, env, nk, group.data, args.i,
   # if (rasterPreds == TRUE) {
     predictive.map <- maxnet.predictRaster(full.mod, env, type = 'exponential', clamp = clamp)
     # AIC
-    nparam <- get.params(full.mod)
+    nparam <- length(full.mod[[i]]$betas) #get.params(full.mod)
     aicc <- calc.aicc(nparam, occ, predictive.map)
   #   } else {
   #   predictive.map <- stack()
