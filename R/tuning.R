@@ -228,9 +228,9 @@ tuning <- function (occ, env, bg.coords, occ.grp, bg.grp, method, algorithm, arg
   #   }# because predictive maps won't be available 
     # when running in parallel, it is better just to remove them from results
   # }
-
+  full.mods <- list()
   results <- ENMevaluation(algorithm = alg, results = res, predictions = predictive.maps,
-                           models = list(), partition.method = method,
+                           models = full.mods, partition.method = method,
                            occ.pts = occ, occ.grp = group.data[[1]],
                            bg.pts = bg.coords, bg.grp = group.data[[2]])
   if (parallel == TRUE) {stopCluster(c1)}
