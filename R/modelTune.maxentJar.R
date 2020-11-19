@@ -6,7 +6,7 @@ modelTune.maxentJar <- function(pres, bg, env, nk, group.data, args.i, userArgs,
                                 rasterPreds, clamp, categoricals, 
                                 occ
                                 , threshold = 5, rand.percent = 50, iterations = 100 # pRoc
-                                ) {
+) {
   
   # set up data: x is coordinates of occs and bg, 
   # p is vector of 0's and 1's designating occs and bg
@@ -20,13 +20,17 @@ modelTune.maxentJar <- function(pres, bg, env, nk, group.data, args.i, userArgs,
   
   # if rasters selected, predict for the full model
   # if (rasterPreds == TRUE) {
-    predictive.map <- predict(full.mod, env, args = pred.args) 
-    # AIC
-    nparam <- get.params(full.mod)
-    aicc <- calc.aicc(nparam, occ, predictive.map)
+  predictive.map <- predict(full.mod, env, args = pred.args) 
+  # AIC
+  nparam <- get.params(full.mod)
+  aicc <- calc.aicc(nparam, occ, predictive.map)
   # } else {
   #   predictive.map <- stack()
   # }
+  
+  # save full model AUC
+  full.AUC <- full.mod@results[5]
+  full.mod <- NULL
   
   # set up empty vectors for stats
   AUC.TEST <- double()
@@ -63,8 +67,8 @@ modelTune.maxentJar <- function(pres, bg, env, nk, group.data, args.i, userArgs,
       # predict values for pRoc
       roc.map <- predict(mod, env, args = pred.args)  
       proc <- try(kuenm::kuenm_proc(occ.test = occ.test, model = roc.map, threshold = threshold, # pRoc
-                             rand.percent = rand.percent, iterations = iterations,
-                             parallel = F),
+                                    rand.percent = rand.percent, iterations = iterations,
+                                    parallel = F),
                   silent = TRUE)
       
       proc_res[[k]] <- proc[[1]]
@@ -85,7 +89,7 @@ modelTune.maxentJar <- function(pres, bg, env, nk, group.data, args.i, userArgs,
   pROC <- do.call(rbind, proc_res) # joining tables of the pROC results
   # pROC <- pROC[!apply(pROC, 1, anyNA),] # removing groups with NAs
   stats <- c(AUC.DIFF, AUC.TEST, OR10, ORmin, pROC)
-  out.i <- list(full.mod, stats, aicc) # , predictive.map
+  out.i <- list(full.mod, stats, aicc, full.AUC) # , predictive.map
   raster::removeTmpFiles(h=0)
   return(out.i)
 }

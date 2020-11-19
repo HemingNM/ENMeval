@@ -134,7 +134,9 @@ tuning <- function (occ, env, bg.coords, occ.grp, bg.grp, method, algorithm, arg
   }
 
   # gather all full models into list
-  full.mods <- lapply(out, function(x) x[[1]])
+  if (algorithm == 'maxnet'){
+    full.mods <- lapply(out, function(x) x[[1]])
+  }
   # gather all statistics into a data frame
   statsTbl <- as.data.frame(t(sapply(out, function(x) x[[2]])))
   # gather AICc
@@ -175,15 +177,24 @@ tuning <- function (occ, env, bg.coords, occ.grp, bg.grp, method, algorithm, arg
   Var.pROC.ratio <- apply(pROC.ratio, 1, var, na.rm=T)
   Mean.pROC.p <- rowMeans(pROC.p, na.rm=T)
   # get training AUCs for each model
-  full.AUC <- double()
-
-  for (i in 1:length(full.mods)) {
-    if (algorithm == 'maxnet') {
+  if(algorithm == 'maxent.jar'){
+    full.mods <- list()
+    full.AUC <- sapply(out, function(x) x[[4]])
+  } else if (algorithm == 'maxnet'){
+    full.AUC <- double()
+    for (i in 1:length(full.mods)) {
       full.AUC[i] <- dismo::evaluate(pres, bg, full.mods[[i]])@auc
-    } else if (algorithm == 'maxent.jar') {
-      full.AUC[i] <- full.mods[[i]]@results[5]
-    }
+      }
   }
+  # full.AUC <- double()
+  # 
+  # for (i in 1:length(full.mods)) {
+  #   if (algorithm == 'maxnet') {
+  #     full.AUC[i] <- dismo::evaluate(pres, bg, full.mods[[i]])@auc
+  #   } else if (algorithm == 'maxent.jar') {
+  #     full.AUC[i] <- full.mods[[i]]@results[5]
+  #   }
+  # }
 
   # get total number of parameters
   # nparam <- numeric()
@@ -228,7 +239,6 @@ tuning <- function (occ, env, bg.coords, occ.grp, bg.grp, method, algorithm, arg
   #   }# because predictive maps won't be available 
     # when running in parallel, it is better just to remove them from results
   # }
-  full.mods <- list()
   results <- ENMevaluation(algorithm = alg, results = res, predictions = predictive.maps,
                            models = full.mods, partition.method = method,
                            occ.pts = occ, occ.grp = group.data[[1]],
