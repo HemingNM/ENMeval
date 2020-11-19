@@ -230,7 +230,7 @@ tuning <- function (occ, env, bg.coords, occ.grp, bg.grp, method, algorithm, arg
   # }
 
   results <- ENMevaluation(algorithm = alg, results = res, predictions = predictive.maps,
-                           models = full.mods, partition.method = method,
+                           models = list(), partition.method = method,
                            occ.pts = occ, occ.grp = group.data[[1]],
                            bg.pts = bg.coords, bg.grp = group.data[[2]])
   if (parallel == TRUE) {stopCluster(c1)}
