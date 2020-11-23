@@ -21,10 +21,10 @@ modelTune.maxentJar <- function(pres, bg, env, nk, group.data, args.i, userArgs,
   full.mod <- dismo::maxent(x, p, args = c(args.i, userArgs),
                             path = mxnt.tempdirs[length(mxnt.tempdirs)],
                             factors = categoricals)  
-  pred.args <- c("outputformat=raw", ifelse(clamp==TRUE, "doclamp=true", "doclamp=false"))
   
   # if rasters selected, predict for the full model
   # if (rasterPreds == TRUE) {
+  pred.args <- c("outputformat=raw", ifelse(clamp==TRUE, "doclamp=true", "doclamp=false"))
   predictive.map <- predict(full.mod, env, args = pred.args) 
   # AIC
   nparam <- get.params(full.mod)
@@ -77,8 +77,8 @@ modelTune.maxentJar <- function(pres, bg, env, nk, group.data, args.i, userArgs,
                                     rand.percent = rand.percent, iterations = iterations,
                                     parallel = F),
                   silent = TRUE)
-      
       proc_res[[k]] <- proc[[1]]
+      pROC <- do.call(rbind, proc_res) # joining tables of the pROC results
     }
     
     # figure out 90% of total no. of training records
@@ -92,9 +92,7 @@ modelTune.maxentJar <- function(pres, bg, env, nk, group.data, args.i, userArgs,
     train.thr.min <- min(p.train)
     ORmin[k] <- mean(p.test < train.thr.min)
   }
-  ###From pROC analyses
-  pROC <- do.call(rbind, proc_res) # joining tables of the pROC results
-  # pROC <- pROC[!apply(pROC, 1, anyNA),] # removing groups with NAs
+  
   stats <- c(AUC.DIFF, AUC.TEST, OR10, ORmin, pROC)
   out.i <- list(full.mod, stats, aicc, full.AUC) # , predictive.map
   # remove temp files
