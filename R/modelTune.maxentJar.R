@@ -13,8 +13,13 @@ modelTune.maxentJar <- function(pres, bg, env, nk, group.data, args.i, userArgs,
   x <- rbind(pres, bg)
   p <- c(rep(1, nrow(pres)), rep(0, nrow(bg)))
   
+  # create temporary folders to store maxent temp files
+  mxnt.tempdirs <- sapply(1:(nk+1), function(x)tempfile("mxnt_"))
+  sapply(mxnt.tempdirs, dir.create)
+  
   # build the full model from all the data
   full.mod <- dismo::maxent(x, p, args = c(args.i, userArgs),
+                            path = mxnt.tempdirs[length(mxnt.tempdirs)],
                             factors = categoricals)  
   pred.args <- c("outputformat=raw", ifelse(clamp==TRUE, "doclamp=true", "doclamp=false"))
   
@@ -53,7 +58,9 @@ modelTune.maxentJar <- function(pres, bg, env, nk, group.data, args.i, userArgs,
     p <- c(rep(1, nrow(train.val)), rep(0, nrow(bg.val)))
     
     # run the current test model
-    mod <- dismo::maxent(x, p, args = c(args.i, userArgs), factors = categoricals)  
+    mod <- dismo::maxent(x, p, args = c(args.i, userArgs),
+                         path = mxnt.tempdirs[k],
+                         factors = categoricals)  
     
     AUC.TEST[k] <- dismo::evaluate(test.val, bg, mod)@auc
     AUC.DIFF[k] <- max(0, dismo::evaluate(train.val, bg, mod)@auc - AUC.TEST[k])
@@ -90,7 +97,11 @@ modelTune.maxentJar <- function(pres, bg, env, nk, group.data, args.i, userArgs,
   # pROC <- pROC[!apply(pROC, 1, anyNA),] # removing groups with NAs
   stats <- c(AUC.DIFF, AUC.TEST, OR10, ORmin, pROC)
   out.i <- list(full.mod, stats, aicc, full.AUC) # , predictive.map
+  # remove temp files
   raster::removeTmpFiles(h=0)
+  sapply(mxnt.tempdirs, unlink, recursive=T)
+  # sapply(mxnt.tempdirs, dir.exists)
+  
   return(out.i)
 }
 

@@ -1,7 +1,7 @@
 Package: ENMeval
 Type: Package
 Title: Automated Runs and Evaluations of Ecological Niche Models
-Version: 0.3.0
+Version: 0.3.2
 Date: 2018-07-23
 Author: Robert Muscarella, Peter J. Galante, Mariano Soley-Guardia, Robert A. Boria, Jamie M. Kass, Maria Uriarte and Robert P. Anderson
 Maintainer: Robert Muscarella <bob.muscarella@gmail.com>
@@ -15,7 +15,7 @@ Remotes: github::marlonecobos/kuenm
 Suggests: rJava (>= 0.5-0), parallel, knitr, rmarkdown, spocc,
         maptools, rgeos, sp
 VignetteBuilder: knitr
-RoxygenNote: 6.1.1
+RoxygenNote: 7.1.1
 NeedsCompilation: no
 Packaged: 2018-08-14 19:10:12 UTC; au529793
 Repository: CRAN
