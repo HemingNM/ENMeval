@@ -14,8 +14,11 @@ modelTune.maxentJar <- function(pres, bg, env, nk, group.data, args.i, userArgs,
   p <- c(rep(1, nrow(pres)), rep(0, nrow(bg)))
   
   # create temporary folders to store maxent temp files
-  mxnt.tempdirs <- sapply(1:(nk+1), function(x)tempfile("mxnt_"))
+  tmpdir <- tempdir()
+  mxnt.tempdirs <- sapply(1:(nk+1), function(x)tempfile("mxnt_", tmpdir = tmpdir))
   sapply(mxnt.tempdirs, dir.create)
+  # create temporary files to store maxent predictions
+  temp.rasters <- sapply(1:(nk+1), function(x)tempfile("preds_", tmpdir = tmpdir))
   
   # build the full model from all the data
   full.mod <- dismo::maxent(x, p, args = c(args.i, userArgs),
@@ -25,10 +28,14 @@ modelTune.maxentJar <- function(pres, bg, env, nk, group.data, args.i, userArgs,
   # if rasters selected, predict for the full model
   # if (rasterPreds == TRUE) {
   pred.args <- c("outputformat=raw", ifelse(clamp==TRUE, "doclamp=true", "doclamp=false"))
-  predictive.map <- predict(full.mod, env, args = pred.args) 
+  predictive.map <- predict(full.mod, env,
+                            filename=temp.rasters[length(temp.rasters)],
+                            args = pred.args) 
   # AIC
   nparam <- get.params(full.mod)
   aicc <- calc.aicc(nparam, occ, predictive.map)
+  rm(predictive.map)
+  # unlink(temp.rasters[length(temp.rasters)])
   # } else {
   #   predictive.map <- stack()
   # }
@@ -72,13 +79,18 @@ modelTune.maxentJar <- function(pres, bg, env, nk, group.data, args.i, userArgs,
     # pROC
     {
       # predict values for pRoc
-      roc.map <- predict(mod, env, args = pred.args)  
+      roc.map <- predict(mod, env,
+                         filename=temp.rasters[k],
+                         args = pred.args)  
       proc <- try(kuenm::kuenm_proc(occ.test = occ.test, model = roc.map, threshold = threshold, # pRoc
                                     rand.percent = rand.percent, iterations = iterations,
                                     parallel = F),
                   silent = TRUE)
       proc_res[[k]] <- proc[[1]]
       pROC <- do.call(rbind, proc_res) # joining tables of the pROC results
+      
+      rm(roc.map)
+      # unlink(temp.rasters[k])
     }
     
     # figure out 90% of total no. of training records
@@ -96,9 +108,11 @@ modelTune.maxentJar <- function(pres, bg, env, nk, group.data, args.i, userArgs,
   stats <- c(AUC.DIFF, AUC.TEST, OR10, ORmin, pROC)
   out.i <- list(full.mod, stats, aicc, full.AUC) # , predictive.map
   # remove temp files
-  raster::removeTmpFiles(h=0)
-  sapply(mxnt.tempdirs, unlink, recursive=T)
-  # sapply(mxnt.tempdirs, dir.exists)
+  # list.files(tmpdir, "preds_", full.names = T)
+  unlink(list.files(tmpdir, "preds_", full.names = T))
+  # list.files(mxnt.tempdirs, full.names = T)
+  unlink(mxnt.tempdirs, recursive=T)
+  # list.files(tmpdir, full.names = T)
   
   return(out.i)
 }
