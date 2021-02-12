@@ -178,7 +178,7 @@ tuning <- function (occ, env, bg.coords, occ.grp, bg.grp, method, algorithm, arg
   Var.ORmin <- apply(ORmin, 1, var)
   # names(pROC)
   Mean.pROC.ratio <- rowMeans(pROC.ratio) # , na.rm=T
-  Var.pROC.ratio <- apply(pROC.ratio, 1) # , na.rm=T
+  Var.pROC.ratio <- apply(pROC.ratio, 1, var) # , na.rm=T
   Mean.pROC.p <- rowMeans(pROC.p) # , na.rm=T
   # get training AUCs for each model
   if(algorithm == 'maxent.jar'){
